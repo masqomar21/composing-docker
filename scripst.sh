@@ -1,30 +1,49 @@
 #!/bin/bash
 
-# Fungsi untuk menjalankan perintah pada setiap branch
-process_branches() {
-    # Dapatkan daftar branch dengan prefix 'a-'
-    branches=$(git branch --list 'a-*' | sed 's/^[* ]*//')
+# Prefix yang ingin digunakan
+prifix="m"
 
-    if [ -z "$branches" ]; then
-        echo "Tidak ada branch dengan prefix 'a-' ditemukan."
+# Dapatkan daftar branch dengan prefix tertentu
+branches=$(git branch --list "${prifix}*" | sed 's/^* //;s/^ //')
+
+if [ -z "$branches" ]; then
+    echo -e "\e[31mTidak ada branch dengan prefix '$prifix' ditemukan.\e[0m"
+    exit 1
+fi
+
+# Simpan branch aktif saat ini untuk kembali setelah selesai
+currentBranch=$(git branch --show-current)
+
+# Iterasi melalui branch yang ditemukan
+for branch in $branches; do
+    echo "============================================="
+    echo -e "\e[36mBerpindah ke branch: $branch\e[0m"
+    git checkout "$branch"
+
+    # Jalankan perintah pada branch
+    echo -e "\e[32mMenjalankan perintah pada branch $branch\e[0m"
+    # Contoh: Update branch dari remote
+    git pull origin "$branch"
+    # Lakukan merge dari branch asal ke branch yang diinginkan
+    git merge "$currentBranch"
+
+    # Jika ada konflik, tampilkan pesan
+    if [ $? -ne 0 ]; then
+        echo -e "\e[31mConflict terdeteksi pada branch $branch\e[0m"
+        echo -e "\e[31mSilakan selesaikan conflict dan jalankan perintah 'git merge --continue'.\e[0m"
         exit 1
     fi
 
-    # Loop melalui setiap branch
-    for branch in $branches; do
-        echo "Berpindah ke branch: $branch"
-        git checkout "$branch"
+    # Push branch ke remote
+    echo -e "\e[32mPush branch $branch ke remote\e[0m"
+    git push -u origin "$branch"
+done
 
-        # Eksekusi perintah yang ingin dijalankan di sini
-        echo "Menjalankan perintah pada branch $branch"
-        # Contoh perintah:
-        git pull origin "$branch"  # Mengupdate branch dari remote
-    done
+# Kembali ke branch asal
+if [ -n "$currentBranch" ]; then
+    echo "============================================="
+    echo -e "\e[33mKembali ke branch asal: $currentBranch\e[0m"
+    git checkout "$currentBranch"
+fi
 
-    # Kembali ke branch asal (opsional)
-    echo "Kembali ke branch asal"
-    git checkout -
-}
-
-# Panggil fungsi
-process_branches
+echo -e "\e[32mSelesai.\e[0m"
