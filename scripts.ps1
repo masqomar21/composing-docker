@@ -1,11 +1,10 @@
-# Pindah ke direktori repository Git
-# Set-Location -Path "C:\path\to\your\repository"
+$prifix = "m"
 
-# Dapatkan daftar branch dengan prefix 'a-'
-$branches = git branch --list "m*" | ForEach-Object { $_.TrimStart('* ').Trim() }
+# Dapatkan daftar branch dengan prefix tertentu
+$branches = git branch --list "$prifix*" | ForEach-Object { $_.TrimStart('* ').Trim() }
 
 if (-not $branches) {
-    Write-Host "Tidak ada branch dengan prefix 'a-' ditemukan." -ForegroundColor Red
+    Write-Host "Tidak ada branch dengan prefix '$prifix' ditemukan." -ForegroundColor Red
     exit
 }
 
@@ -20,9 +19,20 @@ foreach ($branch in $branches) {
     # Jalankan perintah pada branch
     Write-Host "Menjalankan perintah pada branch $branch" -ForegroundColor Green
     # Contoh: Update branch dari remote
-    # git pull origin $branch
+    git pull origin $branch
     # jalankan perintah merge dari brance sekarang ke branch yang diinginkan
     git merge $currentBranch
+
+    # Jika ada conflict, tampilkan pesan
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Conflict terdeteksi pada branch $branch" -ForegroundColor Red
+        Write-Host "Silakan selesaikan conflict dan jalankan perintah 'git merge --continue'." -ForegroundColor Red
+        exit
+    }
+
+    # Push branch ke remote
+    Write-Host "Push branch $branch ke remote" -ForegroundColor Green
+    git push -u origin $branch
 }
 
 # Kembali ke branch asal
