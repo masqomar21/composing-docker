@@ -3,6 +3,9 @@
 # Prefix yang ingin digunakan
 prifix="m"
 
+# Tanggal dan waktu saat ini
+date=$(date +"%Y-%m-%d %H:%M:%S")
+
 # Dapatkan daftar branch dengan prefix tertentu
 branches=$(git branch --list "${prifix}*" | sed 's/^* //;s/^ //')
 
@@ -23,9 +26,10 @@ for branch in $branches; do
     # Jalankan perintah pada branch
     echo -e "\e[32mMenjalankan perintah pada branch $branch\e[0m"
     # Contoh: Update branch dari remote
+    git fetch origin "$branch"
     git pull origin "$branch"
     # Lakukan merge dari branch asal ke branch yang diinginkan
-    git merge "$currentBranch"
+    git merge "$currentBranch" -m "Merge branch $currentBranch to $branch on $date"
 
     # Jika ada konflik, tampilkan pesan
     if [ $? -ne 0 ]; then

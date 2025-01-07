@@ -1,5 +1,7 @@
 $prifix = "m"
 
+$date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
 # Dapatkan daftar branch dengan prefix tertentu
 $branches = git branch --list "$prifix*" | ForEach-Object { $_.TrimStart('* ').Trim() }
 
@@ -19,9 +21,10 @@ foreach ($branch in $branches) {
     # Jalankan perintah pada branch
     Write-Host "Menjalankan perintah pada branch $branch" -ForegroundColor Green
     # Contoh: Update branch dari remote
+    git fetch origin $branch
     git pull origin $branch
     # jalankan perintah merge dari brance sekarang ke branch yang diinginkan
-    git merge $currentBranch
+    git merge $currentBranch -m "Merge branch $currentBranch to $branch on $date"
 
     # Jika ada conflict, tampilkan pesan
     if ($LASTEXITCODE -ne 0) {
