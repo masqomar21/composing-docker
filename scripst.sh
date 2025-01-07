@@ -14,6 +14,19 @@ if [ -z "$branches" ]; then
     exit 1
 fi
 
+# Tampilkan daftar branch yang akan diupdate
+echo -e "\e[33mDaftar branch yang akan diupdate:\e[0m"
+for branch in $branches; do
+    echo "$branch"
+done
+
+# Konfirmasi pengguna
+read -p "Apakah Anda yakin ingin melanjutkan? (y/n): " confirmation
+if [ "$confirmation" != "y" ]; then
+    echo -e "\e[31mProses dibatalkan.\e[0m"
+    exit 0
+fi
+
 # Simpan branch aktif saat ini untuk kembali setelah selesai
 currentBranch=$(git branch --show-current)
 
@@ -25,7 +38,7 @@ for branch in $branches; do
 
     # Jalankan perintah pada branch
     echo -e "\e[32mMenjalankan perintah pada branch $branch\e[0m"
-    # Contoh: Update branch dari remote
+    # Update branch dari remote
     git fetch origin "$branch"
     git pull origin "$branch"
     # Lakukan merge dari branch asal ke branch yang diinginkan

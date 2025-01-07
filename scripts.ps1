@@ -10,6 +10,18 @@ if (-not $branches) {
     exit
 }
 
+# Tampilkan daftar branch yang akan diupdate dan buat konfirmasi
+Write-Host "Daftar branch yang akan diupdate:" -ForegroundColor Yellow
+foreach ($branch in $branches) {
+    Write-Host $branch
+}
+
+$confirmation = Read-Host "Apakah Anda yakin ingin melanjutkan? (y/n)"
+if ($confirmation -ne "y") {
+    Write-Host "Proses dibatalkan." -ForegroundColor Red
+    exit
+}
+
 # Simpan branch aktif saat ini untuk kembali setelah selesai
 $currentBranch = (git branch --show-current).Trim()
 
