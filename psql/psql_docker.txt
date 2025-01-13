@@ -1,0 +1,1 @@
+docker run --name psql_db -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -p 5432:5432 -v pgdata:/var/lib/postgresql/data -d postgres
